@@ -19,8 +19,9 @@ class RumdlConfigurable(private val project: Project) : BoundConfigurable("rumdl
             group("Executable") {
                 row("rumdl path:") {
                     textFieldWithBrowseButton(
-                        browseDialogTitle = "Select rumdl Executable",
-                        fileChooserDescriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
+                        FileChooserDescriptorFactory.createSingleFileDescriptor()
+                            .withTitle("Select rumdl Executable"),
+                        project
                     )
                         .bindText(
                             getter = { configService.state.rumdlPath ?: "" },

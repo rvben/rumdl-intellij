@@ -12,7 +12,7 @@ group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 repositories {
@@ -25,8 +25,12 @@ repositories {
 dependencies {
     intellijPlatform {
         create(providers.gradleProperty("platformType"), providers.gradleProperty("platformVersion"))
-        bundledPlugins(providers.gradleProperty("platformBundledPlugins").map { it.split(',') })
-        plugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
+        bundledPlugins(providers.gradleProperty("platformBundledPlugins").map {
+            it.split(',').filter { s -> s.isNotBlank() }
+        })
+        plugins(providers.gradleProperty("platformPlugins").map {
+            it.split(',').filter { s -> s.isNotBlank() }
+        })
         instrumentationTools()
         pluginVerifier()
         zipSigner()
