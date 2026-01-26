@@ -1,0 +1,8 @@
+<!-- Extensions that depend on Python plugin -->
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Python SDK listener for detecting rumdl in virtualenvs -->
+        <projectService
+                serviceImplementation="com.rumdl.intellij.python.RumdlPythonService"/>
+    </extensions>
+</idea-plugin>

@@ -1,0 +1,53 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>com.rumdl.intellij</id>
+    <name>rumdl</name>
+    <vendor email="ruben.jongejan@gmail.com" url="https://github.com/rvben/rumdl">Ruben Jongejan</vendor>
+
+    <description><![CDATA[
+    <p>A fast Markdown linter and formatter, written in Rust.</p>
+
+    <h3>Features</h3>
+    <ul>
+        <li>Real-time linting diagnostics in the editor</li>
+        <li>Format on save support</li>
+        <li>Quick fixes for common issues</li>
+        <li>Automatic rumdl detection from virtualenv or PATH</li>
+    </ul>
+
+    <h3>Installation</h3>
+    <p>Install rumdl via pip (<code>pip install rumdl</code>) or cargo (<code>cargo install rumdl</code>).</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
+
+    <!-- Optional Python plugin dependency for virtualenv detection -->
+    <depends optional="true" config-file="rumdl-python.xml">com.intellij.modules.python</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- LSP Server Support -->
+        <platform.lsp.serverSupportProvider
+                implementation="com.rumdl.intellij.lsp.RumdlLspServerSupportProvider"/>
+
+        <!-- Settings/Preferences -->
+        <projectConfigurable
+                parentId="tools"
+                instance="com.rumdl.intellij.RumdlConfigurable"
+                id="com.rumdl.intellij.RumdlConfigurable"
+                displayName="rumdl"
+                nonDefaultProject="true"/>
+
+        <!-- Persistent State for Settings -->
+        <projectService
+                serviceImplementation="com.rumdl.intellij.RumdlConfigService"/>
+
+        <!-- Notification Group -->
+        <notificationGroup id="rumdl" displayType="BALLOON"/>
+    </extensions>
+
+    <projectListeners>
+        <listener class="com.rumdl.intellij.RumdlProjectListener"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </projectListeners>
+</idea-plugin>
