@@ -28,26 +28,26 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- LSP Server Support -->
         <platform.lsp.serverSupportProvider
-                implementation="com.rumdl.plugin.lsp.RumdlLspServerSupportProvider"/>
+                implementation="com.rumdl.intellij.lsp.RumdlLspServerSupportProvider"/>
 
         <!-- Settings/Preferences -->
         <projectConfigurable
                 parentId="tools"
-                instance="com.rumdl.plugin.RumdlConfigurable"
-                id="com.rumdl.plugin.RumdlConfigurable"
+                instance="com.rumdl.intellij.RumdlConfigurable"
+                id="com.rumdl.intellij.RumdlConfigurable"
                 displayName="rumdl"
                 nonDefaultProject="true"/>
 
         <!-- Persistent State for Settings -->
         <projectService
-                serviceImplementation="com.rumdl.plugin.RumdlConfigService"/>
+                serviceImplementation="com.rumdl.intellij.RumdlConfigService"/>
 
         <!-- Notification Group -->
         <notificationGroup id="rumdl" displayType="BALLOON"/>
     </extensions>
 
     <projectListeners>
-        <listener class="com.rumdl.plugin.RumdlProjectListener"
+        <listener class="com.rumdl.intellij.RumdlProjectListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </projectListeners>
 </idea-plugin>
