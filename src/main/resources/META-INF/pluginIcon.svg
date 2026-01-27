@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <!-- Document with folded corner - filled dark -->
+  <path d="M6 3 L26 3 L34 11 L34 35 Q34 37 32 37 L8 37 Q6 37 6 35 Z"
+        fill="#2D2D2D" stroke="#E5E5E5" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Folded corner -->
+  <path d="M26 3 L26 11 L34 11" fill="#3D3D3D" stroke="#E5E5E5" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Fountain pen - adjusted position -->
+  <g transform="translate(-1, 5) rotate(45, 16, 16)">
+    <!-- Pen body -->
+    <rect x="13" y="4" width="6" height="14" rx="1" fill="#E5E5E5"/>
+    <!-- Pen nib -->
+    <path d="M14 18 L16 24 L18 18 Z" fill="#E5E5E5"/>
+    <!-- Nib slit -->
+    <line x1="16" y1="18" x2="16" y2="22" stroke="#2D2D2D" stroke-width="1"/>
+    <!-- Grip section -->
+    <rect x="14" y="14" width="4" height="3" fill="#B0B0B0"/>
+  </g>
+
+  <!-- Green checkmark -->
+  <path d="M18 28 L23 33 L32 22" stroke="#5B9A6F" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
