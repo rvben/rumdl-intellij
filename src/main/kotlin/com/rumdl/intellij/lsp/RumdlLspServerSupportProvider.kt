@@ -10,6 +10,7 @@ import com.intellij.platform.lsp.api.LspServerSupportProvider.LspServerStarter
 import com.intellij.platform.lsp.api.ProjectWideLspServerDescriptor
 import com.rumdl.intellij.Rumdl
 import com.rumdl.intellij.RumdlConfigService
+import com.rumdl.intellij.RumdlNotifications
 
 /**
  * Provides LSP server support for Markdown files using rumdl.
@@ -34,6 +35,7 @@ class RumdlLspServerSupportProvider : LspServerSupportProvider {
 
         // Check if rumdl is available
         if (Rumdl.detectExecutable(project) == null) {
+            RumdlNotifications.notifyRumdlNotFound(project)
             return
         }
 

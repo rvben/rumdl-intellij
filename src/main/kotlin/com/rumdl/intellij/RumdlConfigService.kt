@@ -31,6 +31,9 @@ class RumdlConfigService : PersistentStateComponent<RumdlConfigService.State> {
 
         /** Use rumdl from project's Python virtualenv if available */
         var useVirtualenv: Boolean = true,
+
+        /** Whether the "rumdl not found" notification has been dismissed */
+        var notFoundNotificationDismissed: Boolean = false,
     )
 
     override fun getState(): State = myState
