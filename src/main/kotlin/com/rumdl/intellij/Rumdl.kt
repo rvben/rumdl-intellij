@@ -128,6 +128,6 @@ object Rumdl {
      * Creates a command line for starting the LSP server.
      */
     fun createLspCommandLine(project: Project, workingDir: File?): GeneralCommandLine? {
-        return createCommandLine(project, workingDir, "lsp")
+        return createCommandLine(project, workingDir, "server")
     }
 }
