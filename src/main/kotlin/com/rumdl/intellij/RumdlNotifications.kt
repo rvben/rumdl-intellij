@@ -12,7 +12,7 @@ import com.intellij.openapi.project.Project
  */
 object RumdlNotifications {
     private const val NOTIFICATION_GROUP_ID = "rumdl"
-    private const val INSTALL_DOCS_URL = "https://rumdl.dev/installation/"
+    private const val INSTALL_DOCS_URL = "https://rumdl.dev/getting-started/installation/"
 
     /**
      * Shows a notification that rumdl was not found, with actions to install or configure.
