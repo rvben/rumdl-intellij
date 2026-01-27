@@ -1,6 +1,6 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.rumdl.intellij</id>
+    <id>com.rumdl.plugin</id>
     <name>rumdl</name>
     <vendor email="ruben.jongejan@gmail.com" url="https://github.com/rvben/rumdl">Ruben Jongejan</vendor>
 
@@ -28,26 +28,26 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- LSP Server Support -->
         <platform.lsp.serverSupportProvider
-                implementation="com.rumdl.intellij.lsp.RumdlLspServerSupportProvider"/>
+                implementation="com.rumdl.plugin.lsp.RumdlLspServerSupportProvider"/>
 
         <!-- Settings/Preferences -->
         <projectConfigurable
                 parentId="tools"
-                instance="com.rumdl.intellij.RumdlConfigurable"
-                id="com.rumdl.intellij.RumdlConfigurable"
+                instance="com.rumdl.plugin.RumdlConfigurable"
+                id="com.rumdl.plugin.RumdlConfigurable"
                 displayName="rumdl"
                 nonDefaultProject="true"/>
 
         <!-- Persistent State for Settings -->
         <projectService
-                serviceImplementation="com.rumdl.intellij.RumdlConfigService"/>
+                serviceImplementation="com.rumdl.plugin.RumdlConfigService"/>
 
         <!-- Notification Group -->
         <notificationGroup id="rumdl" displayType="BALLOON"/>
     </extensions>
 
     <projectListeners>
-        <listener class="com.rumdl.intellij.RumdlProjectListener"
+        <listener class="com.rumdl.plugin.RumdlProjectListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </projectListeners>
 </idea-plugin>
