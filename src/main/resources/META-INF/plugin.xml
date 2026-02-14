@@ -23,7 +23,7 @@
     <depends>com.intellij.modules.lang</depends>
 
     <!-- Optional Python plugin dependency for virtualenv detection -->
-    <depends optional="true" config-file="rumdl-python.xml">com.intellij.modules.python</depends>
+    <depends optional="true" config-file="rumdl-python.xml">PythonCore</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- LSP Server Support -->

@@ -1,6 +1,6 @@
 package com.rumdl.intellij
 
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
+import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogPanel
@@ -19,7 +19,7 @@ class RumdlConfigurable(private val project: Project) : BoundConfigurable("rumdl
             group("Executable") {
                 row("rumdl path:") {
                     textFieldWithBrowseButton(
-                        FileChooserDescriptorFactory.createSingleFileDescriptor()
+                        FileChooserDescriptor(true, false, false, false, false, false)
                             .withTitle("Select rumdl Executable"),
                         project
                     )
