@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [0.1.1]
+
+### Changed
+- Bumped IntelliJ Platform to 2025.3 and raised supported build range to 251–261.* for compatibility with PyCharm 2026.1
+- Upgraded Kotlin to 2.2.20 and changelog plugin to 2.4.0
+- Replaced deprecated/internal `PySdkExtKt.pythonSdk` with public `PythonSdkUtil.findPythonSdk`
+
+### Removed
+- Support for IntelliJ Platform 2024.3 (build 243)
+
+## [0.1.0]
+
 ### Added
 - Initial release
 - LSP-based diagnostics for Markdown files
