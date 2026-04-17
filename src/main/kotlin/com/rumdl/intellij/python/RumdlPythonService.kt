@@ -5,7 +5,7 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.SystemInfo
-import com.jetbrains.python.sdk.pythonSdk
+import com.jetbrains.python.sdk.PythonSdkUtil
 import java.io.File
 
 /**
@@ -15,14 +15,10 @@ import java.io.File
 @Service(Service.Level.PROJECT)
 class RumdlPythonService(private val project: Project) {
 
-    /**
-     * Gets the preferred Python SDK for the project.
-     * Tries project-level SDK first, then falls back to module-level SDKs.
-     */
     private val preferredPythonSdk: Sdk?
         get() = try {
-            project.pythonSdk ?: ModuleManager.getInstance(project).modules.asSequence()
-                .mapNotNull { it.pythonSdk }.firstOrNull()
+            ModuleManager.getInstance(project).modules
+                .firstNotNullOfOrNull { PythonSdkUtil.findPythonSdk(it) }
         } catch (_: NoClassDefFoundError) {
             null
         }

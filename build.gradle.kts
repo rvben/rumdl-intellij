@@ -31,7 +31,6 @@ dependencies {
         plugins(providers.gradleProperty("platformPlugins").map {
             it.split(',').filter { s -> s.isNotBlank() }
         })
-        instrumentationTools()
         pluginVerifier()
         zipSigner()
         testFramework(TestFrameworkType.Platform)
