@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.1.3]
+
+### Fixed
+- Plugin build for IDEA Ultimate 2025.3 no longer fails with "Could not find bundled plugin with ID: 'PythonCore'". The Python virtualenv integration now reaches the Python SDK API via reflection and has no build-time dependency on a specific Python plugin, so the plugin builds against the bare IntelliJ Platform and degrades gracefully when the Python plugin isn't installed at runtime.
+
+### Changed
+- Pinned the project's Java toolchain via `mise.toml` (`temurin-21`) to match CI.
+
 ## [0.1.2]
 
 ### Changed
