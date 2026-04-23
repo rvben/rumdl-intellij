@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.2]
+
 ### Changed
 - Retargeted plugin build base from PyCharm Professional to IntelliJ IDEA Ultimate so the plugin is discoverable in IDEA's in-IDE Marketplace search (#1). Plugin continues to work in PyCharm; PythonCore is bundled in both.
 
