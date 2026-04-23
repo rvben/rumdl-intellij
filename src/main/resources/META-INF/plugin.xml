@@ -22,9 +22,6 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
 
-    <!-- Optional Python plugin dependency for virtualenv detection -->
-    <depends optional="true" config-file="rumdl-python.xml">PythonCore</depends>
-
     <extensions defaultExtensionNs="com.intellij">
         <!-- LSP Server Support -->
         <platform.lsp.serverSupportProvider
@@ -41,6 +38,11 @@
         <!-- Persistent State for Settings -->
         <projectService
                 serviceImplementation="com.rumdl.intellij.RumdlConfigService"/>
+
+        <!-- Python virtualenv detection for rumdl executable.
+             Degrades gracefully when the Python plugin is not installed. -->
+        <projectService
+                serviceImplementation="com.rumdl.intellij.python.RumdlPythonService"/>
 
         <!-- Notification Group -->
         <notificationGroup id="rumdl" displayType="BALLOON"/>
