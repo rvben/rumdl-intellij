@@ -26,9 +26,6 @@ class RumdlConfigService : PersistentStateComponent<RumdlConfigService.State> {
         /** Enable LSP-based features */
         var enableLsp: Boolean = true,
 
-        /** Enable format on save */
-        var formatOnSave: Boolean = false,
-
         /** Use rumdl from project's Python virtualenv if available */
         var useVirtualenv: Boolean = true,
 

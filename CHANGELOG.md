@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Added
+- "Reformat Code" (⌥⇧⌘L / Ctrl+Alt+L) now runs rumdl on Markdown files via the LSP
+  `textDocument/formatting` request. The same wiring activates the IDE's standard
+  "Actions on Save → Reformat code" for Markdown, replacing the previous (non-functional)
+  custom "Format on save" toggle. (#2)
+
+### Removed
+- "Format on save" checkbox under Settings → Tools → rumdl. The setting was never wired
+  up to any save listener and did nothing. Format-on-save is now provided by the IDE's
+  built-in mechanism, which routes through the new LSP formatting integration.
+- Support for IntelliJ Platform 2025.1 (build 251). Minimum supported build is now 252,
+  required by the modern `LspCustomization` API used for the Reformat Code integration.
+
 ## [0.1.3]
 
 ### Fixed

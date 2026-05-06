@@ -10,7 +10,8 @@
     <h3>Features</h3>
     <ul>
         <li>Real-time linting diagnostics in the editor</li>
-        <li>Format on save support</li>
+        <li>Reformat Code (Ctrl+Alt+L / ⌥⇧⌘L) runs rumdl on Markdown files</li>
+        <li>Format-on-save via Settings → Tools → Actions on Save → Reformat code</li>
         <li>Quick fixes for common issues</li>
         <li>Automatic rumdl detection from virtualenv or PATH</li>
     </ul>

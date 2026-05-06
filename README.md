@@ -5,7 +5,8 @@ A JetBrains IDE plugin for [rumdl](https://github.com/rvben/rumdl), a fast Markd
 ## Features
 
 - **Real-time diagnostics** - See linting errors and warnings as you type
-- **Format on save** - Automatically format Markdown files when saving
+- **Reformat Code** - `⌥⇧⌘L` / `Ctrl+Alt+L` runs rumdl on the current Markdown file
+- **Format on save** - Enable via Settings → Tools → Actions on Save → Reformat code
 - **Quick fixes** - Apply suggested fixes directly from the editor
 - **Virtualenv support** - Automatically detects rumdl from your Python virtualenv
 
@@ -38,8 +39,10 @@ Go to **Settings/Preferences** → **Tools** → **rumdl**
 
 - **rumdl path** - Custom path to rumdl executable (leave empty for auto-detection)
 - **Use virtualenv** - Look for rumdl in project's Python virtualenv first
-- **Enable LSP** - Enable Language Server Protocol features
-- **Format on save** - Automatically format on file save
+- **Enable LSP** - Enable Language Server Protocol features (diagnostics + Reformat Code)
+
+To format on save, enable **Settings → Tools → Actions on Save → Reformat code** —
+the IDE will route the action through rumdl for Markdown files.
 
 ## Executable Detection
 

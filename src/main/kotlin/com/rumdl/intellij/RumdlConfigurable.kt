@@ -51,12 +51,11 @@ class RumdlConfigurable(private val project: Project) : BoundConfigurable("rumdl
                 row {
                     checkBox("Enable LSP")
                         .bindSelected(configService.state::enableLsp)
-                        .comment("Enable Language Server Protocol for diagnostics and formatting")
-                }
-                row {
-                    checkBox("Format on save")
-                        .bindSelected(configService.state::formatOnSave)
-                        .comment("Automatically format Markdown files when saving")
+                        .comment(
+                            "Enable Language Server Protocol for diagnostics and formatting. " +
+                                "Use Reformat Code (⌥⇧⌘L / Ctrl+Alt+L) to format. " +
+                                "For format-on-save, enable Settings → Tools → Actions on Save → Reformat code."
+                        )
                 }
             }
         }
