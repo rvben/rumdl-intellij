@@ -56,13 +56,21 @@ class RumdlLspServerDescriptor(project: Project) : ProjectWideLspServerDescripto
 
     // Routes "Reformat Code" through rumdl's LSP textDocument/formatting; without this
     // override the IDE has no Markdown formatter and the action silently does nothing.
+    //
+    // rumdl is the authoritative Markdown formatter: this descriptor only ever serves
+    // Markdown, and the rumdl server always advertises documentFormattingProvider. We
+    // therefore claim exclusivity for every Markdown file unconditionally. We must NOT
+    // gate on serverExplicitlyWantsToFormatThisFile: that flag can be false before LSP
+    // capability negotiation has settled, and the IDE's only fallback is a native
+    // Markdown formatter that does nothing useful (no lint fixes). Gating there makes
+    // "Reformat Code" a silent no-op - exactly the regression behind issue #2.
     override val lspCustomization: LspCustomization = object : LspCustomization() {
         override val formattingCustomizer: LspFormattingSupport = object : LspFormattingSupport() {
             override fun shouldFormatThisFileExclusivelyByServer(
                 file: VirtualFile,
                 ideCanFormatThisFileItself: Boolean,
                 serverExplicitlyWantsToFormatThisFile: Boolean,
-            ): Boolean = serverExplicitlyWantsToFormatThisFile && isMarkdownFile(file)
+            ): Boolean = isMarkdownFile(file)
         }
     }
 }

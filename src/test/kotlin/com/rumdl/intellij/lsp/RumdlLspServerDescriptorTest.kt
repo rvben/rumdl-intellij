@@ -55,25 +55,38 @@ class RumdlLspServerDescriptorTest : BasePlatformTestCase() {
         )
     }
 
-    fun `test markdown files are formatted exclusively by the rumdl server`() {
+    fun `test markdown files are always formatted exclusively by the rumdl server`() {
+        val support = descriptor.formattingSupport()
+
+        // rumdl is the authoritative Markdown formatter, so exclusivity must hold
+        // for every combination of the IDE/server hint flags - none of them should
+        // be able to divert a Markdown file away from rumdl.
+        for (ideCanFormat in listOf(true, false)) {
+            for (serverWants in listOf(true, false)) {
+                assertTrue(
+                    "rumdl must claim exclusive formatting for Markdown " +
+                        "(ideCanFormat=$ideCanFormat, serverWants=$serverWants)",
+                    support.shouldFormatThisFileExclusivelyByServer(
+                        file("doc.md"),
+                        ideCanFormatThisFileItself = ideCanFormat,
+                        serverExplicitlyWantsToFormatThisFile = serverWants,
+                    )
+                )
+            }
+        }
+    }
+
+    fun `test markdown is still formatted before LSP capability negotiation settles`() {
+        // Regression guard for issue #2: the IDE reports it can format Markdown
+        // itself and has not yet observed the server's formatting capability
+        // (serverWants=false). Gating on that flag here made "Reformat Code" a
+        // silent no-op. rumdl always advertises documentFormattingProvider and
+        // the IDE has no useful Markdown fallback, so exclusivity must still hold.
         val support = descriptor.formattingSupport()
 
         assertTrue(
-            "rumdl should be the exclusive formatter for Markdown when the server advertises formatting",
-            support.shouldFormatThisFileExclusivelyByServer(
-                file("doc.md"),
-                ideCanFormatThisFileItself = true,
-                serverExplicitlyWantsToFormatThisFile = true,
-            )
-        )
-    }
-
-    fun `test formatting is declined when server does not advertise formatting`() {
-        val support = descriptor.formattingSupport()
-
-        assertFalse(
-            "When the server cannot format (capability missing), do not claim exclusivity " +
-                "— let the IDE fall back to its default behaviour instead of silently no-opping.",
+            "rumdl must remain the exclusive Markdown formatter even when the IDE " +
+                "has not yet seen the server's formatting capability (issue #2)",
             support.shouldFormatThisFileExclusivelyByServer(
                 file("doc.md"),
                 ideCanFormatThisFileItself = true,
@@ -85,14 +98,19 @@ class RumdlLspServerDescriptorTest : BasePlatformTestCase() {
     fun `test non-markdown files are never formatted by rumdl`() {
         val support = descriptor.formattingSupport()
 
-        assertFalse(
-            "rumdl must not claim exclusivity over non-Markdown files even if the server says it can format",
-            support.shouldFormatThisFileExclusivelyByServer(
-                file("script.sh"),
-                ideCanFormatThisFileItself = true,
-                serverExplicitlyWantsToFormatThisFile = true,
-            )
-        )
+        for (ideCanFormat in listOf(true, false)) {
+            for (serverWants in listOf(true, false)) {
+                assertFalse(
+                    "rumdl must not claim exclusivity over non-Markdown files " +
+                        "(ideCanFormat=$ideCanFormat, serverWants=$serverWants)",
+                    support.shouldFormatThisFileExclusivelyByServer(
+                        file("script.sh"),
+                        ideCanFormatThisFileItself = ideCanFormat,
+                        serverExplicitlyWantsToFormatThisFile = serverWants,
+                    )
+                )
+            }
+        }
     }
 
     fun `test all markdown extensions are formatted by rumdl`() {
@@ -103,7 +121,7 @@ class RumdlLspServerDescriptorTest : BasePlatformTestCase() {
                 support.shouldFormatThisFileExclusivelyByServer(
                     file("doc.$ext"),
                     ideCanFormatThisFileItself = true,
-                    serverExplicitlyWantsToFormatThisFile = true,
+                    serverExplicitlyWantsToFormatThisFile = false,
                 )
             )
         }
