@@ -24,6 +24,11 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
+        with:
+          # The only thing uv installs is the pinned rumdl from
+          # gradle.properties; key its cache on that file so it invalidates
+          # exactly when the pin changes.
+          cache-dependency-glob: gradle.properties
 
       - name: CI
         run: make ci-release
