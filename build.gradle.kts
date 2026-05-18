@@ -79,9 +79,52 @@ changelog {
     repositoryUrl = providers.gradleProperty("pluginRepositoryUrl")
 }
 
+// The real-server LSP contract test (`*ContractTest`) drives an actual `rumdl`
+// subprocess. Keep it out of the default `test` task so plain unit runs and the
+// IDE inner loop need neither the binary nor network access; run it as an
+// explicit, opt-in `integrationTest` gate (invoked by CI via the Makefile).
+val contractTestPattern = "*ContractTest"
+
+val integrationTest = tasks.register<Test>("integrationTest") {
+    val unitTest = tasks.named<Test>("test").get()
+    description = "Runs real-server LSP contract tests against a pinned rumdl."
+    group = JavaBasePlugin.VERIFICATION_GROUP
+
+    testClassesDirs = unitTest.testClassesDirs
+    classpath = unitTest.classpath
+    dependsOn(unitTest.dependsOn)
+
+    // The IntelliJ Platform plugin supplies the sandbox config and required
+    // JVM module-access args (e.g. --add-opens java.base/sun.nio.fs) via lazy
+    // argument providers on the `test` task. Reuse the providers (resolved at
+    // execution time) so BasePlatformTestCase initialises identically here.
+    jvmArgumentProviders.addAll(unitTest.jvmArgumentProviders)
+    systemProperties(unitTest.systemProperties)
+
+    // Make the binary deterministic: the Makefile passes the directory of the
+    // pinned rumdl (uv's tool-bin dir). Prepending it to PATH ensures
+    // Rumdl.detectExecutable() resolves exactly the pinned version even when a
+    // different rumdl is already on the developer's PATH, so the pin in
+    // gradle.properties actually governs what the contract test runs against.
+    providers.gradleProperty("rumdlBinDir").orNull?.let { binDir ->
+        doFirst {
+            environment(
+                "PATH",
+                binDir + System.getProperty("path.separator") + (System.getenv("PATH") ?: ""),
+            )
+        }
+    }
+
+    filter { includeTestsMatching(contractTestPattern) }
+}
+
 tasks {
     wrapper {
         gradleVersion = providers.gradleProperty("gradleVersion").get()
+    }
+
+    test {
+        filter { excludeTestsMatching(contractTestPattern) }
     }
 
     publishPlugin {
