@@ -3,9 +3,14 @@ kotlin = "2.2.20"
 changelog = "2.4.0"
 intelliJPlatform = "2.11.0"
 junit = "4.13.2"
+# Pinned to the lsp4j version bundled in the targeted IntelliJ platform
+# (ideaIU 2025.x ships org.eclipse.lsp4j 0.21.1). Keeping these aligned
+# avoids a classpath conflict in tests, which run on the IDE runtime.
+lsp4j = "0.21.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+lsp4j = { group = "org.eclipse.lsp4j", name = "org.eclipse.lsp4j", version.ref = "lsp4j" }
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }

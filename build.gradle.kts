@@ -36,6 +36,7 @@ dependencies {
         testFramework(TestFrameworkType.Platform)
     }
     testImplementation(libs.junit)
+    testImplementation(libs.lsp4j)
 }
 
 intellijPlatform {
