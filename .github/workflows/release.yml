@@ -22,22 +22,16 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Clean previous build artifacts
-        run: ./gradlew clean
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
-      - name: Build plugin
-        run: ./gradlew buildPlugin
-
-      - name: Run tests
-        run: ./gradlew test
-
-      - name: Verify plugin
-        run: ./gradlew verifyPlugin
+      - name: CI
+        run: make ci-release
 
       - name: Publish to JetBrains Marketplace
         env:
           PUBLISH_TOKEN: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
-        run: ./gradlew publishPlugin
+        run: make publish
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
