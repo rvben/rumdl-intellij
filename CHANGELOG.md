@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-05-22
+
+### Fixed
+
+- "Reformat Code" on Markdown now reliably routes through rumdl. Before the LSP
+  capability handshake settled, the IDE could fall back to its native Markdown
+  formatter and apply no lint fixes; the plugin now always claims exclusive
+  formatting for Markdown files. (#2)
+
+### Changed
+
+- Removed the plugin's `until-build` upper bound so it stays compatible with
+  current and future IDE builds (2026.1 / 261 and later) without a per-release
+  update. The plugin relies only on stable public APIs.
+
 ## [0.1.4] - 2026-05-06
 
 ### Added
@@ -58,7 +73,8 @@
 - Format on save support
 - Python virtualenv integration (PyCharm, IntelliJ with Python plugin)
 
-[Unreleased]: https://github.com/rvben/rumdl/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/rvben/rumdl/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/rvben/rumdl/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/rvben/rumdl/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/rvben/rumdl/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/rvben/rumdl/compare/v0.1.1...v0.1.2

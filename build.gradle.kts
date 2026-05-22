@@ -44,7 +44,10 @@ intellijPlatform {
         version = providers.gradleProperty("pluginVersion")
         ideaVersion {
             sinceBuild = providers.gradleProperty("pluginSinceBuild")
-            untilBuild = providers.gradleProperty("pluginUntilBuild")
+            // Open-ended: drop the until-build attribute so the plugin stays
+            // compatible with future IDE builds. Safe because the plugin
+            // depends only on stable public APIs.
+            untilBuild = provider { null }
         }
         changeNotes = providers.gradleProperty("pluginVersion").map { pluginVersion ->
             with(changelog) {
