@@ -1,4 +1,4 @@
-.PHONY: install-rumdl build test integration-test verify clean publish ci ci-release
+.PHONY: install-rumdl build test integration-test verify clean publish ci ci-release release-patch release-minor release-major
 
 # Single source of truth for the pinned rumdl version lives in
 # gradle.properties so the build and the contract test never disagree.
@@ -41,3 +41,15 @@ publish:
 ci: clean build test integration-test
 
 ci-release: clean build test integration-test verify
+
+# Release targets: vership bumps pluginVersion, promotes the CHANGELOG
+# [Unreleased] section, commits, tags, and pushes. The pushed tag triggers the
+# Release workflow. Default to patch (see project release policy).
+release-patch:
+	vership bump patch
+
+release-minor:
+	vership bump minor
+
+release-major:
+	vership bump major

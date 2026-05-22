@@ -129,8 +129,4 @@ tasks {
     test {
         filter { excludeTestsMatching(contractTestPattern) }
     }
-
-    publishPlugin {
-        dependsOn(patchChangelog)
-    }
 }

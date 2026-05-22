@@ -1,0 +1,17 @@
+# Release configuration for vership (https://github.com/rvben/vership).
+# vership owns the release mechanics: it bumps pluginVersion in
+# gradle.properties, promotes the CHANGELOG `## [Unreleased]` section into the
+# new version, commits, tags, and pushes. Pushing a `v*` tag triggers the
+# Release workflow, which builds, verifies, and publishes to the Marketplace.
+
+[project]
+type = "gradle"
+branch = "main"
+
+[checks]
+# No standalone lint step; the plugin verifier runs in the CI Release workflow.
+lint = false
+# Fast unit suite as a local pre-tag gate. The full build, real-server contract
+# test, and plugin verifier run in CI (`make ci-release`) after the tag pushes.
+tests = true
+test_command = "./gradlew test"
