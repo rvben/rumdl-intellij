@@ -38,3 +38,41 @@ jobs:
           name: plugin-zip
           path: build/distributions/*.zip
           retention-days: 7
+
+  reformat-code-compatibility:
+    name: Reformat Code (${{ matrix.intellij }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The default build covers 2025.3. Pin the minimum supported release
+        # and the newest IDE generation separately so LSP formatter routing
+        # cannot silently regress at either edge of the advertised range.
+        intellij: ['2025.2.5', '2026.1']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          cache-dependency-glob: gradle.properties
+
+      - name: Install pinned rumdl
+        run: make install-rumdl
+
+      - name: Exercise the Reformat Code action
+        run: >-
+          ./gradlew integrationTest
+          --tests com.rumdl.intellij.lsp.RumdlReformatActionContractTest
+          -PplatformVersion=${{ matrix.intellij }}
+          -PrumdlBinDir="$(uv tool dir --bin)"
