@@ -3,7 +3,9 @@
 package com.rumdl.intellij.lsp
 
 import com.intellij.formatting.service.FormattingService
-import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -12,9 +14,9 @@ import com.intellij.platform.lsp.api.LspServer
 import com.intellij.platform.lsp.api.LspServerManager
 import com.intellij.platform.lsp.api.LspServerState
 import com.intellij.psi.PsiManager
-import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.PsiTestUtil
+import com.intellij.testFramework.TestActionEvent
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.rumdl.intellij.Rumdl
 import com.rumdl.intellij.RumdlConfigService
@@ -56,10 +58,17 @@ class RumdlReformatActionContractTest : BasePlatformTestCase() {
             reflow-mode = "semantic-line-breaks"
         """.trimIndent() + "\n"
 
-        // Two sentences on one physical line; semantic-line-breaks reflow splits
-        // them onto separate lines.
-        val SOURCE = "# Title\n\nThis is a sentence. This is another sentence on the same line.\n"
-        val EXPECTED = "# Title\n\nThis is a sentence.\nThis is another sentence on the same line.\n"
+        // Verbatim reproducer from issue #2. The command-line formatter joins
+        // each sentence into one physical line under semantic-line-breaks.
+        val SOURCE = buildString {
+            append("Before creating a task and sending it to the background, validate that all\n")
+            append("required resources exist. We want to fail early if we now, that e.g a\n")
+            append("workbook with a passed `workbook_id` does not exist.\n")
+        }
+        val EXPECTED = buildString {
+            append("Before creating a task and sending it to the background, validate that all required resources exist.\n")
+            append("We want to fail early if we now, that e.g a workbook with a passed `workbook_id` does not exist.\n")
+        }
     }
 
     fun `test Reformat Code routes Markdown through rumdl and reflows the buffer`() {
@@ -140,10 +149,18 @@ class RumdlReformatActionContractTest : BasePlatformTestCase() {
                 lspFormattingService.canFormat(psiFile),
             )
 
-            // Full end-to-end: run Reformat Code and assert the buffer reflowed.
-            WriteCommandAction.runWriteCommandAction(project) {
-                CodeStyleManager.getInstance(project).reformat(psiFile)
-            }
+            // Full end-to-end: invoke the registered Reformat Code action with
+            // the same editor/project data the keyboard shortcut supplies. A
+            // direct CodeStyleManager.reformat call skips FileInEditorProcessor,
+            // so it can pass even when Ctrl+Alt+L itself is not wired correctly.
+            val reformatAction = ActionManager.getInstance().getAction("ReformatCode")
+                ?: error("IDE ReformatCode action is not registered")
+            val dataContext = SimpleDataContext.builder()
+                .add(CommonDataKeys.PROJECT, project)
+                .add(CommonDataKeys.EDITOR, myFixture.editor)
+                .add(CommonDataKeys.VIRTUAL_FILE, vFile)
+                .build()
+            reformatAction.actionPerformed(TestActionEvent.createTestEvent(reformatAction, dataContext))
 
             val document = FileDocumentManager.getInstance().getDocument(vFile)
                 ?: error("no document for ${vFile.path}")
