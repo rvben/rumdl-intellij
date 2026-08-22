@@ -45,7 +45,10 @@ import java.io.File
 class RumdlReformatActionContractTest : BasePlatformTestCase() {
 
     private companion object {
-        const val WAIT_TIMEOUT_MS = 30_000L
+        // A cold CI runner may still be indexing the downloaded IDE when the
+        // LSP process starts. Bound the wait, but leave enough room for that
+        // supported slow path before declaring formatter routing broken.
+        const val WAIT_TIMEOUT_MS = 60_000L
         const val LSP_SERVICE_FQN = "com.intellij.platform.lsp.impl.formatter.LspFormattingService"
 
         val PYPROJECT = """

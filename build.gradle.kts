@@ -105,11 +105,20 @@ val integrationTest = tasks.register<Test>("integrationTest") {
     systemProperties(unitTest.systemProperties)
 
     // Make the binary deterministic: the Makefile passes the directory of the
-    // pinned rumdl (uv's tool-bin dir). Prepending it to PATH ensures
-    // Rumdl.detectExecutable() resolves exactly the pinned version even when a
-    // different rumdl is already on the developer's PATH, so the pin in
-    // gradle.properties actually governs what the contract test runs against.
+    // pinned rumdl (uv's tool-bin dir). Give the contract test the exact binary
+    // and also prepend its directory to PATH for the plugin's normal discovery
+    // path. This keeps the pin effective even when a developer has another
+    // rumdl installed.
     providers.gradleProperty("rumdlBinDir").orNull?.let { binDir ->
+        val executableName = if (System.getProperty("os.name").startsWith("Windows", ignoreCase = true)) {
+            "rumdl.exe"
+        } else {
+            "rumdl"
+        }
+        // Do not rely on IntelliJ's PATH lookup inside the test JVM. The test
+        // already supports this property; wiring it here makes the binary pin
+        // effective even if the platform snapshots PATH before doFirst runs.
+        systemProperty("rumdl.test.binary", file("$binDir/$executableName").absolutePath)
         doFirst {
             environment(
                 "PATH",
