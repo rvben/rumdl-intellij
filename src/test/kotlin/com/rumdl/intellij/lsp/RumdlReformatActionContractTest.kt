@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.platform.lsp.api.LspServer
@@ -48,7 +49,7 @@ class RumdlReformatActionContractTest : BasePlatformTestCase() {
         // A cold CI runner may still be indexing the downloaded IDE when the
         // LSP process starts. Bound the wait, but leave enough room for that
         // supported slow path before declaring formatter routing broken.
-        const val WAIT_TIMEOUT_MS = 60_000L
+        const val WAIT_TIMEOUT_SECONDS = 60
         const val LSP_SERVICE_FQN = "com.intellij.platform.lsp.impl.formatter.LspFormattingService"
 
         val PYPROJECT = """
@@ -93,12 +94,6 @@ class RumdlReformatActionContractTest : BasePlatformTestCase() {
             ?: error("could not load ${mdIoFile.path} into the VFS")
         val workVDir = vFile.parent ?: error("no parent VFS dir for ${vFile.path}")
 
-        // Make detection deterministic if a binary path is provided; otherwise
-        // fall back to PATH detection (governed by the pinned rumdl via the Makefile).
-        System.getProperty("rumdl.test.binary")?.let { bin ->
-            RumdlConfigService.getInstance(project).state.rumdlPath = bin
-        }
-
         // The platform only starts an LSP server for an open file that is inside
         // the project's content (ProjectFileIndex.isInContent). Register the
         // on-disk project dir as a content root so the server can start.
@@ -113,25 +108,28 @@ class RumdlReformatActionContractTest : BasePlatformTestCase() {
         project.basePath?.let { File(it).mkdirs() }
 
         val manager = LspServerManager.getInstance(project)
+        val config = RumdlConfigService.getInstance(project)
+        val previousState = config.state.copy()
         try {
+            config.state.enableLsp = true
+            // An invalid pin must fail here instead of silently using another installation.
+            System.getProperty("rumdl.test.binary")?.let { bin ->
+                val binary = File(bin)
+                assertTrue("Pinned rumdl is not an executable file: $bin", binary.isFile && binary.canExecute())
+                config.state.rumdlPath = bin
+            }
+            val detected = Rumdl.detectExecutable(project)
+            assertNotNull("No rumdl executable found for the Reformat Code contract test", detected)
+
             // Opening the file triggers the provider's fileOpened; also ask the
             // manager explicitly so the server starts even without editor events.
             myFixture.openFileInEditor(vFile)
             manager.startServersIfNeeded(RumdlLspServerSupportProvider::class.java)
 
-            val detected = Rumdl.detectExecutable(project)?.absolutePath
-            val server = waitForRunningServer(manager)
-            if (server == null) {
-                val servers = manager.getServersForProvider(RumdlLspServerSupportProvider::class.java)
-                val states = servers.joinToString(", ") { "${it.state}" }
-                fail(
-                    "rumdl LSP server never reached Running state; cannot test Reformat Code. " +
-                        "detectedBinary=$detected, serverCount=${servers.size}, states=[$states]",
-                )
-            }
+            val server = waitForRunningServer(manager, detected!!)
             assertNotNull(
                 "rumdl server did not advertise documentFormattingProvider.",
-                server!!.initializeResult?.capabilities?.documentFormattingProvider,
+                server.initializeResult?.capabilities?.documentFormattingProvider,
             )
 
             val psiFile = PsiManager.getInstance(project).findFile(vFile)
@@ -167,7 +165,10 @@ class RumdlReformatActionContractTest : BasePlatformTestCase() {
 
             val document = FileDocumentManager.getInstance().getDocument(vFile)
                 ?: error("no document for ${vFile.path}")
-            waitFor("document reflowed by Reformat Code") { document.text == EXPECTED }
+            waitFor(
+                "document reflowed by Reformat Code",
+                diagnostics = { "Expected buffer:\n$EXPECTED\nActual buffer:\n${document.text}" },
+            ) { document.text == EXPECTED }
 
             assertEquals(
                 "Reformat Code did not reflow the Markdown buffer via rumdl (issue #2).",
@@ -179,28 +180,50 @@ class RumdlReformatActionContractTest : BasePlatformTestCase() {
             // Light-project modules are reused across tests; remove the content
             // root we added so we don't leak it into sibling tests.
             runCatching { PsiTestUtil.removeContentEntry(module, workVDir) }
+            config.loadState(previousState)
         }
     }
 
-    private fun waitForRunningServer(manager: LspServerManager): LspServer? {
+    private fun waitForRunningServer(manager: LspServerManager, binary: File): LspServer {
         var running: LspServer? = null
-        waitFor("rumdl server reaches Running state") {
+        val started = System.nanoTime()
+        val transitions = mutableListOf<String>()
+        var previousSnapshot: String? = null
+        waitFor(
+            "rumdl server reaches Running state",
+            diagnostics = {
+                "binary=${binary.absolutePath}, executable=${binary.isFile && binary.canExecute()}, " +
+                    "workingDirectory=${project.basePath}, " +
+                    "workingDirectoryExists=${project.basePath?.let { File(it).isDirectory }}, " +
+                    "projectInitialized=${project.isInitialized}, projectDisposed=${project.isDisposed}, " +
+                    "indexing=${DumbService.isDumb(project)}, states=$transitions, " +
+                    "ideLogDirectory=${System.getProperty("idea.log.path")}"
+            },
+        ) {
             val servers = manager.getServersForProvider(RumdlLspServerSupportProvider::class.java)
+            val snapshot = servers.joinToString(prefix = "[", postfix = "]") { "${it.state}" }
+            if (snapshot != previousSnapshot) {
+                if (transitions.size < 64) {
+                    transitions.add("${(System.nanoTime() - started) / 1_000_000}ms: $snapshot")
+                }
+                previousSnapshot = snapshot
+            }
             running = servers.firstOrNull { it.state == LspServerState.Running }
             running != null
         }
-        return running
+        return checkNotNull(running)
     }
 
-    /** Pump the IDE event queue until [condition] holds or the timeout elapses. */
-    private fun waitFor(what: String, condition: () -> Boolean) {
-        val deadline = System.nanoTime() + WAIT_TIMEOUT_MS * 1_000_000
-        while (System.nanoTime() < deadline) {
-            PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
-            if (condition()) return
-            Thread.sleep(50)
-        }
-        PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
-        // Caller asserts the post-condition; this only bounds the wait.
+    /** Dispatch all IDE events while waiting; never discard events needed by LSP startup. */
+    private fun waitFor(
+        what: String,
+        diagnostics: () -> String = { "ideLogDirectory=${System.getProperty("idea.log.path")}" },
+        condition: () -> Boolean,
+    ) {
+        PlatformTestUtil.waitWithEventsDispatching(
+            java.util.function.Supplier { "Timed out after ${WAIT_TIMEOUT_SECONDS}s waiting for $what. ${diagnostics()}" },
+            java.util.function.BooleanSupplier { condition() },
+            WAIT_TIMEOUT_SECONDS,
+        )
     }
 }

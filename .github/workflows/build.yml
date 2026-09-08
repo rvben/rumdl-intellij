@@ -32,6 +32,18 @@ jobs:
       - name: CI
         run: make ci
 
+      - name: Upload test failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: test-failure-default
+          path: |
+            build/reports/tests/
+            build/test-results/**/*.xml
+            .intellijPlatform/sandbox/**/log-test/idea.log*
+          include-hidden-files: true
+          retention-days: 7
+
       - name: Upload plugin artifact
         uses: actions/upload-artifact@v7.0.1
         with:
@@ -76,3 +88,15 @@ jobs:
           --tests com.rumdl.intellij.lsp.RumdlReformatActionContractTest
           -PplatformVersion=${{ matrix.intellij }}
           -PrumdlBinDir="$(uv tool dir --bin)"
+
+      - name: Upload test failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: test-failure-${{ matrix.intellij }}
+          path: |
+            build/reports/tests/
+            build/test-results/**/*.xml
+            .intellijPlatform/sandbox/**/log-test/idea.log*
+          include-hidden-files: true
+          retention-days: 7

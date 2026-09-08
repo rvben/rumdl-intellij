@@ -165,6 +165,12 @@ val integrationTest = tasks.register<Test>("integrationTest") {
     jvmArgumentProviders.addAll(unitTest.jvmArgumentProviders)
     systemProperties(unitTest.systemProperties)
 
+    // Include LSP startup details in the sandbox logs retained on CI failures.
+    systemProperty("idea.log.debug.categories", "#com.intellij.platform.lsp")
+    testLogging {
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+
     // Make the binary deterministic: the Makefile passes the directory of the
     // pinned rumdl (uv's tool-bin dir). Give the contract test the exact binary
     // and also prepend its directory to PATH for the plugin's normal discovery

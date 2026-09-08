@@ -43,3 +43,15 @@ jobs:
         with:
           files: build/distributions/*.zip
           generate_release_notes: true
+
+      - name: Upload test failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: test-failure-release
+          path: |
+            build/reports/tests/
+            build/test-results/**/*.xml
+            .intellijPlatform/sandbox/**/log-test/idea.log*
+          include-hidden-files: true
+          retention-days: 7
