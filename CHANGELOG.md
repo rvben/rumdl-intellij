@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Removed executable discovery's dependency on an IntelliJ PATH lookup API
+  scheduled for removal, while retaining support for IntelliJ 2025.2.
+
 ## [0.1.6] - 2026-09-08
 
 ### Fixed

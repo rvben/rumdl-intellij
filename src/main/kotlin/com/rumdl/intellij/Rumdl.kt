@@ -1,9 +1,9 @@
 package com.rumdl.intellij
 
 import com.intellij.execution.configurations.GeneralCommandLine
-import com.intellij.execution.configurations.PathEnvironmentVariableUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.util.EnvironmentUtil
 import java.io.File
 import java.nio.file.Path
 
@@ -62,8 +62,14 @@ object Rumdl {
     /**
      * Searches for rumdl in the system PATH.
      */
-    private fun findInSystemPath(): File? {
-        return PathEnvironmentVariableUtil.findInPath(executableName())
+    internal fun findInSystemPath(path: String? = EnvironmentUtil.getValue("PATH")): File? {
+        // Keep IntelliJ's shell-loaded PATH (especially for macOS GUI launches),
+        // without depending on lookup APIs scheduled for removal in newer IDEs.
+        return path?.splitToSequence(File.pathSeparatorChar)
+            ?.map { File(it) }
+            ?.filter { it.isAbsolute && it.isDirectory }
+            ?.map { File(it, executableName()) }
+            ?.firstOrNull { it.isFile && it.canExecute() }
     }
 
     /**
