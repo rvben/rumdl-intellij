@@ -38,9 +38,9 @@ publish:
 	./gradlew publishPlugin
 
 # CI targets (mirror what GitHub Actions runs)
-ci: clean build test integration-test
+ci: verify-locks clean build test integration-test
 
-ci-release: clean build test integration-test verify
+ci-release: verify-locks clean build test integration-test verify
 
 # Release targets: vership bumps pluginVersion, promotes the CHANGELOG
 # [Unreleased] section, commits, tags, and pushes. The pushed tag triggers the
@@ -53,3 +53,14 @@ release-minor:
 
 release-major:
 	vership bump major
+
+.PHONY: verify-locks lock-dependencies
+
+verify-locks:
+	./gradlew verifyDependencyLocks
+
+# Refresh the default target and both IDE versions exercised by CI.
+lock-dependencies:
+	./gradlew verifyDependencyLocks --write-locks
+	./gradlew verifyDependencyLocks --write-locks -PplatformVersion=2025.2.5
+	./gradlew verifyDependencyLocks --write-locks -PplatformVersion=2026.1

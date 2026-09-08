@@ -68,6 +68,37 @@ The plugin searches for rumdl in the following order:
 ./gradlew build
 ```
 
+### Dependency locks
+
+Compile/runtime and test classpaths use strict Gradle dependency locking.
+`gradle.lockfile` records the default IDE target from `gradle.properties`;
+`gradle/locks/<version>.lockfile` records each alternate IDE target tested by CI.
+`buildscript-gradle.lockfile` records the build plugins and their transitive
+Maven dependencies. Keep these generated files in Git. The generated `settings-gradle.lockfile`
+also records the settings version-catalog configuration. Synthetic IDE and
+bundled-plugin coordinates are excluded; IDE targets remain pinned separately.
+
+Normal builds validate the configurations they resolve. `make verify-locks`
+checks all four project classpaths, and CI runs it without rewriting locks.
+Missing project lock state or an incompatible graph fails verification. A new
+IDE target needs its own generated lockfile before it can build.
+
+After deliberately updating dependency, plugin, or IDE versions:
+
+```bash
+make lock-dependencies
+make ci
+upd audit --lang gradle
+```
+
+Review and commit the lockfile changes with the version changes. Keep the
+alternate targets in `make lock-dependencies` aligned with the CI matrix.
+`upd` currently audits the adjacent default project and buildscript lockfiles;
+it does not discover the alternate target lockfiles under `gradle/locks`.
+Locking does not audit the IDE/JDK contents or the settings-plugin dependency
+graph, and does not verify artifact checksums. It also does not lock every
+IntelliJ tooling configuration, such as the downloaded Plugin Verifier IDEs.
+
 ### Running in Development IDE
 
 ```bash

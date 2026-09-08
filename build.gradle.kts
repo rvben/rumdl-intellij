@@ -1,11 +1,58 @@
+import java.util.Properties
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+
+buildscript {
+    configurations.classpath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+}
 
 plugins {
     id("java")
     alias(libs.plugins.kotlin)
     alias(libs.plugins.intelliJPlatform)
     alias(libs.plugins.changelog)
+}
+
+// Keep IDE compatibility jobs isolated: each target resolves a different platform graph.
+val lockedConfigurations = setOf(
+    "compileClasspath", "runtimeClasspath", "testCompileClasspath", "testRuntimeClasspath"
+)
+val platformTarget = providers.gradleProperty("platformVersion").get()
+val defaultPlatformTarget = Properties().apply {
+    file("gradle.properties").inputStream().use { load(it) }
+}.getProperty("platformVersion")
+dependencyLocking {
+    lockMode = LockMode.STRICT
+    // Local IDE artifacts are synthetic coordinates, not external Maven packages.
+    // The IDE target remains pinned separately in gradle.properties / the CI matrix.
+    ignoredDependencies.addAll("bundledPlugin:*", "bundledModule:*", "idea:*")
+    if (platformTarget != defaultPlatformTarget) {
+        require(platformTarget.matches(Regex("[0-9]+(?:\\.[0-9]+)*"))) {
+            "Unsupported platformVersion for dependency locking: $platformTarget"
+        }
+        lockFile = file("gradle/locks/$platformTarget.lockfile")
+    }
+}
+configurations.matching { it.name in lockedConfigurations }.configureEach {
+    resolutionStrategy.activateDependencyLocking()
+}
+tasks.register("verifyDependencyLocks") {
+    group = "verification"
+    description = "Resolves locked dependency graphs without rewriting their lockfiles."
+    doLast {
+        require(file("buildscript-gradle.lockfile").isFile || gradle.startParameter.isWriteDependencyLocks) {
+            "Missing buildscript-gradle.lockfile; run make lock-dependencies"
+        }
+        lockedConfigurations.forEach { name ->
+            configurations.getByName(name).incoming.resolutionResult.allDependencies.forEach { dependency ->
+                if (dependency is org.gradle.api.artifacts.result.UnresolvedDependencyResult) {
+                    throw dependency.failure
+                }
+            }
+        }
+    }
 }
 
 group = providers.gradleProperty("pluginGroup").get()

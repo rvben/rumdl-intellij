@@ -72,7 +72,7 @@ jobs:
 
       - name: Exercise the Reformat Code action
         run: >-
-          ./gradlew integrationTest
+          ./gradlew verifyDependencyLocks integrationTest
           --tests com.rumdl.intellij.lsp.RumdlReformatActionContractTest
           -PplatformVersion=${{ matrix.intellij }}
           -PrumdlBinDir="$(uv tool dir --bin)"
