@@ -1,7 +1,7 @@
 [versions]
-kotlin = "2.2.20"
-changelog = "2.4.0"
-intelliJPlatform = "2.11.0"
+kotlin = "2.4.20"
+changelog = "2.5.0"
+intelliJPlatform = "2.18.1"
 junit = "4.13.2"
 # Pinned to the lsp4j version bundled in the targeted IntelliJ platform
 # (ideaIU 2025.x ships org.eclipse.lsp4j 0.21.1). Keeping these aligned

@@ -3,6 +3,15 @@ import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 buildscript {
+    // Patch the build plugins' transitive libraries without changing plugin runtime jars.
+    dependencies {
+        classpath(platform("com.fasterxml.jackson:jackson-bom:2.22.2"))
+        constraints {
+            classpath("org.jsoup:jsoup:1.23.2") {
+                because("Fix GHSA-pmhh-3w7g-xqp8 in IntelliJ structure tooling")
+            }
+        }
+    }
     configurations.classpath {
         resolutionStrategy.activateDependencyLocking()
     }
@@ -82,6 +91,8 @@ dependencies {
         zipSigner()
         testFramework(TestFrameworkType.Platform)
     }
+    // The IDE test framework also brings Jackson onto the test classpath.
+    testImplementation(platform("com.fasterxml.jackson:jackson-bom:2.22.2"))
     testImplementation(libs.junit)
     testImplementation(libs.lsp4j)
 }

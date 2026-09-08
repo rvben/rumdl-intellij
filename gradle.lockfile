@@ -1,11 +1,12 @@
 # This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
-com.fasterxml.jackson.core:jackson-annotations:2.19.0=testCompileClasspath
-com.fasterxml.jackson.core:jackson-core:2.19.0=testCompileClasspath
-com.fasterxml.jackson.core:jackson-databind:2.19.0=testCompileClasspath
-com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0=testCompileClasspath
-com.fasterxml.jackson:jackson-bom:2.19.0=testCompileClasspath
+# To regenerate this file, run: ./gradlew :dependencies --write-locks
+com.fasterxml.jackson.core:jackson-annotations:2.22=testCompileClasspath
+com.fasterxml.jackson.core:jackson-core:2.22.2=testCompileClasspath
+com.fasterxml.jackson.core:jackson-databind:2.22.2=testCompileClasspath
+com.fasterxml.jackson.module:jackson-module-kotlin:2.22.2=testCompileClasspath
+com.fasterxml.jackson:jackson-bom:2.22.2=testCompileClasspath,testRuntimeClasspath
 com.google.code.gson:gson:2.10.1=testCompileClasspath,testRuntimeClasspath
 com.jetbrains.intellij.platform:test-framework-common:253.28294.334=testCompileClasspath
 com.jetbrains.intellij.platform:test-framework-core:253.28294.334=testCompileClasspath
