@@ -13,6 +13,9 @@ buildscript {
         }
     }
     configurations.classpath {
+        // Undertow serves the optional custom-plugin-repository bridge. This build
+        // uses only standard repositories and does not need that HTTP server.
+        exclude(group = "io.undertow", module = "undertow-core")
         resolutionStrategy.activateDependencyLocking()
     }
 }

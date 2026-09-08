@@ -99,6 +99,11 @@ Locking does not audit the IDE/JDK contents or the settings-plugin dependency
 graph, and does not verify artifact checksums. It also does not lock every
 IntelliJ tooling configuration, such as the downloaded Plugin Verifier IDEs.
 
+The build excludes Undertow, which the IntelliJ Gradle plugin uses only for its
+custom-plugin-repository bridge. This project uses standard repositories and
+bundled plugins. If adding `customPluginRepository`,
+review this exclusion and the Undertow advisory GHSA-3x3v-w654-m28m first.
+
 ### Running in Development IDE
 
 ```bash
