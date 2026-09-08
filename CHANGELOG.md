@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-09-08
+
+### Fixed
+
+- Updated vulnerable build-tool dependencies and removed the unused Undertow
+  custom-plugin-repository bridge from the build classpath.
+- Pinned CI actions to resolvable releases.
+
+### Changed
+
+- Updated the Gradle and Kotlin toolchain.
+- Added strict dependency lockfiles for the build and test graphs, including
+  the IntelliJ 2025.2.5 and 2026.1 compatibility targets, with CI verification.
+
 ## [0.1.5] - 2026-05-22
 
 ### Fixed
